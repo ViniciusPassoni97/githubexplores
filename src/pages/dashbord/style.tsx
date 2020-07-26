@@ -60,6 +60,7 @@ export const Title = styled.h1`
           }
           div{
                margin-left:20px;
+               flex:1;
                strong{
                     font-size:20px;
                     color:#3d3d4d;
