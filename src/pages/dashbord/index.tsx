@@ -1,6 +1,6 @@
 import React,{useState,FormEvent} from 'react';
 import api from '../../services/api';
-import {Title, Form,Repository} from './style';
+import {Title, Form,Repository,Error} from './style';
 import {FiChevronRight} from 'react-icons/fi';
 import Layout from '../../assets/Layout.svg';
 interface Repositorys{
@@ -14,20 +14,29 @@ interface Repositorys{
 
 const Dashbord:React.FC = () => {
      const [newRepo,setNewRepo] = useState('');
+     const [inputError, setInputError] = useState('');
      const [repositores, setRepositores] = useState<Repositorys[]>([]);
      async function addRepositores(event:FormEvent<HTMLFormElement>):Promise<void>{
           event.preventDefault();
-          const response = await api.get(`repos/${newRepo}`);
-          const repositore = response.data;
-
-          setRepositores([...repositores, repositore]);
-          setNewRepo('');
+          if(!newRepo){
+               setInputError('Digite algum nome do repositorio !');
+               return;
+          }
+          try{
+               const response = await api.get(`repos/${newRepo}`);
+               const repositore = response.data;
+               setRepositores([...repositores, repositore]);
+               setNewRepo(''); 
+               setInputError('');
+          }catch(err){
+               setInputError('Erro ao buscar repositorio !');
+          }
      }
      return(
           <>
                <img src={Layout} alt='Layout'/>
                <Title> Explorando Repositorios do GitHub</Title>
-               <Form onSubmit={addRepositores}>
+               <Form hasError = {!! inputError} onSubmit={addRepositores}>
                     <input 
                     value={newRepo}
                     onChange={(e)=>setNewRepo(e.target.value)}
@@ -35,6 +44,7 @@ const Dashbord:React.FC = () => {
                     </input>
                     <button type="submit" >Pesquisar</button>
                </Form>
+               {inputError && <Error>{inputError}</Error>}
                <Repository>
                     {repositores.map(e=>(
                          <a key={e.full_name} href='teste'>
